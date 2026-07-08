@@ -91,7 +91,14 @@ const corsOptions = {
   optionsSuccessStatus: 200
 };
 
-app.use(cors(corsOptions));
+// Apply browser CORS to everything except the remote MCP connector. MCP calls
+// are server-to-server / native-client (not browser fetches), are gated by the
+// secret URL, and can carry an Origin the strict production CORS would reject —
+// so skip CORS there to avoid false "connection issue" failures.
+app.use((req, res, next) => {
+  if (req.path.startsWith('/mcp/')) return next();
+  return cors(corsOptions)(req, res, next);
+});
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
