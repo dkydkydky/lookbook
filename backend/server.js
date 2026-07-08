@@ -247,6 +247,59 @@ app.use('/api/image-proxy', imageProxyRouter);
 app.use('/api/contact', contactRouter);
 
 // =====================================================
+// REMOTE MCP CONNECTOR (optional)
+// =====================================================
+// Serves the Lookbook tools over Streamable HTTP so Claude can add this as a
+// remote connector. Gated behind a secret URL segment (MCP_SECRET) so the
+// endpoint isn't guessable. Read-only by default; set MCP_ENABLE_WRITES=true to
+// expose write/upload tools (not recommended for a public endpoint).
+const MCP_SECRET = process.env.MCP_SECRET;
+if (MCP_SECRET) {
+  const mcpEnableWrites = process.env.MCP_ENABLE_WRITES === 'true';
+  const mcpAllowDelete = process.env.MCP_ALLOW_DELETE === 'true';
+  const mcpBaseUrl = process.env.MCP_BASE_URL || `http://localhost:${PORT}/api`;
+
+  // Lazily build the handler on first use (the MCP SDK is ES-module only, so we
+  // load it via dynamic import from this CommonJS file).
+  let mcpHandlerPromise = null;
+  const getMcpHandler = () => {
+    if (!mcpHandlerPromise) {
+      mcpHandlerPromise = import('./mcp/httpConnector.js').then(({ createHttpHandler }) =>
+        createHttpHandler({
+          baseUrl: mcpBaseUrl,
+          enableWrites: mcpEnableWrites,
+          allowDelete: mcpAllowDelete,
+          auth: {
+            token: process.env.ADMIN_TOKEN,
+            username: process.env.ADMIN_USERNAME,
+            password: process.env.ADMIN_PASSWORD,
+          },
+        })
+      );
+    }
+    return mcpHandlerPromise;
+  };
+
+  app.all('/mcp/:secret', async (req, res) => {
+    // Constant-ish check; mismatch looks like any other 404 to avoid probing.
+    if (req.params.secret !== MCP_SECRET) {
+      return res.status(404).json({ error: 'Not Found', path: req.path });
+    }
+    try {
+      const handler = await getMcpHandler();
+      await handler(req, res);
+    } catch (error) {
+      console.error('MCP connector error:', error);
+      if (!res.headersSent) {
+        res.status(500).json({ error: 'MCP connector error', message: error.message });
+      }
+    }
+  });
+
+  console.log('🔌 Remote MCP connector enabled at /mcp/<secret> (writes ' + (mcpEnableWrites ? 'on' : 'off') + ')');
+}
+
+// =====================================================
 // ERROR HANDLING
 // =====================================================
 
