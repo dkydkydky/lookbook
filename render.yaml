@@ -23,6 +23,10 @@ services:
         sync: false
       - key: UPLOADS_ROOT
         value: /var/data/uploads
+      # Secret URL segment that enables the remote MCP connector at /mcp/<secret>.
+      # Set to a long random string in the Render dashboard. Leave unset to disable.
+      - key: MCP_SECRET
+        sync: false
     disks:
       - name: lookbook-uploads
         mountPath: /var/data

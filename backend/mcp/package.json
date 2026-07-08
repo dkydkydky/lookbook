@@ -1,0 +1,23 @@
+{
+  "name": "lookbook-mcp",
+  "version": "1.0.0",
+  "description": "MCP server that lets Claude query the Lookbook API (people, projects, search, taxonomy).",
+  "type": "module",
+  "main": "server.js",
+  "bin": {
+    "lookbook-mcp": "server.js"
+  },
+  "scripts": {
+    "start": "node server.js"
+  },
+  "keywords": [
+    "lookbook",
+    "mcp",
+    "claude"
+  ],
+  "license": "ISC",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.12.0",
+    "zod": "^3.23.8"
+  }
+}
