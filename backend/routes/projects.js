@@ -1,5 +1,5 @@
 // Project routes for Lookbook API
-// Following test-pilot-server pattern
+// Following the platform server pattern
 
 const express = require('express');
 const router = express.Router();
