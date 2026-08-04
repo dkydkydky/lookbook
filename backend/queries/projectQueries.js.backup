@@ -1,5 +1,5 @@
 // Project queries for Lookbook
-// Follows test-pilot-server query pattern
+// Follows the platform server query pattern
 
 const { pool } = require('../db/dbConfig');
 

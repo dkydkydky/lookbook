@@ -1,5 +1,5 @@
 // Profile queries for Lookbook - Compatible with segundo-db schema
-// Follows test-pilot-server query pattern
+// Follows the platform server query pattern
 
 const { pool } = require('../db/dbConfig');
 

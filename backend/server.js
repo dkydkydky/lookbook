@@ -1,5 +1,5 @@
 // Lookbook Backend Server
-// Express + PostgreSQL API following test-pilot-server patterns
+// Express + PostgreSQL API following the platform server patterns
 
 require('dotenv').config();
 const express = require('express');
